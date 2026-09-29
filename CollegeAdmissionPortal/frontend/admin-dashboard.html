@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!-- Declare standard HTML5 document type -->
+<html lang="en">
+<head>
+    <!-- Character set -->
+    <meta charset="UTF-8">
+    <!-- Viewport responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Page title -->
+    <title>Admin Dashboard - CET Admission Scrutiny</title>
+    <!-- CSS link -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================================= -->
+    <!-- HEADER SECTION                                                -->
+    <!-- ============================================================= -->
+    <header>
+        <div class="header-container">
+            <div class="portal-title">
+                <h1>State CET Cell - Admin Dashboard</h1>
+                <p id="adminGreeting">Welcome, Admission Officer</p>
+            </div>
+            <!-- Navigation links -->
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="admin-dashboard.html" class="btn-nav-active">Dashboard</a>
+                <a href="admin-login.html" onclick="sessionStorage.clear();">Admin Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+        Scrutiny Panel: Review candidate merit and click Approve or Reject to update admission status.
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- MAIN CONTENT SECTION (ADMIN DASHBOARD)                        -->
+    <!-- ============================================================= -->
+    <main style="max-width: 1200px;">
+
+        <!-- Summary Statistics Cards Row -->
+        <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px;">
+            <!-- Stat 1: Total -->
+            <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center; border-left: 4px solid #0d3b66;">
+                <div style="font-size: 13px; color: #64748b; text-transform: uppercase; font-weight: 600;">Total Applications</div>
+                <div id="statTotal" style="font-size: 28px; font-weight: 700; color: #0d3b66; margin-top: 5px;">0</div>
+            </div>
+
+            <!-- Stat 2: Pending -->
+            <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center; border-left: 4px solid #f59e0b;">
+                <div style="font-size: 13px; color: #64748b; text-transform: uppercase; font-weight: 600;">Pending Review</div>
+                <div id="statPending" style="font-size: 28px; font-weight: 700; color: #d97706; margin-top: 5px;">0</div>
+            </div>
+
+            <!-- Stat 3: Approved -->
+            <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center; border-left: 4px solid #2a9d8f;">
+                <div style="font-size: 13px; color: #64748b; text-transform: uppercase; font-weight: 600;">Approved / Allotted</div>
+                <div id="statApproved" style="font-size: 28px; font-weight: 700; color: #2a9d8f; margin-top: 5px;">0</div>
+            </div>
+
+            <!-- Stat 4: Rejected -->
+            <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center; border-left: 4px solid #e63946;">
+                <div style="font-size: 13px; color: #64748b; text-transform: uppercase; font-weight: 600;">Rejected</div>
+                <div id="statRejected" style="font-size: 28px; font-weight: 700; color: #e63946; margin-top: 5px;">0</div>
+            </div>
+        </section>
+
+        <!-- Main Applications Table Card -->
+        <section class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h2>Submitted Candidate Applications</h2>
+                    <p>Live applications loaded directly from <code>data/applications.txt</code>.</p>
+                </div>
+                <!-- Refresh Button -->
+                <button onclick="loadApplications();" class="btn btn-primary btn-sm">&#8635; Refresh List</button>
+            </div>
+
+            <!-- Alert Box for action notifications -->
+            <div id="actionAlert" class="alert alert-success"></div>
+
+            <!-- Table Responsive Wrapper -->
+            <div class="table-responsive">
+                <table id="applicationsTable">
+                    <thead>
+                        <tr>
+                            <th>App ID</th>
+                            <th>Candidate Name</th>
+                            <th>Email</th>
+                            <th>10th %</th>
+                            <th>12th %</th>
+                            <th>CET Score</th>
+                            <th>Branch Preferred</th>
+                            <th>Category</th>
+                            <th>Current Status</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTableBody">
+                        <!-- Dynamic rows will be inserted here by JavaScript -->
+                        <tr>
+                            <td colspan="11" style="text-align: center; padding: 20px; color: #64748b;">
+                                Loading applications from server...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ============================================================= -->
+    <!-- FOOTER SECTION                                                -->
+    <!-- ============================================================= -->
+    <footer>
+        <p>&copy; 2026 State Common Entrance Test Cell • College Admission Portal</p>
+    </footer>
+
+    <!-- ============================================================= -->
+    <!-- JAVASCRIPT: Interacts with Java Backend API                   -->
+    <!-- ============================================================= -->
+    <script>
+        // Display admin greeting if stored
+        const adminName = sessionStorage.getItem('adminName');
+        if (adminName) {
+            document.getElementById('adminGreeting').textContent = "Logged in: " + adminName + " (Admin)";
+        }
+
+        // Alert notification element
+        const actionAlert = document.getElementById('actionAlert');
+
+        // Initial fetch of applications on page load
+        window.addEventListener('DOMContentLoaded', loadApplications);
+
+        // Function: Loads all applications from Java backend /api/admin/applications
+        function loadApplications() {
+            fetch('/api/admin/applications')
+                .then(response => response.json())
+                .then(applications => {
+                    const tbody = document.getElementById('applicationsTableBody');
+                    tbody.innerHTML = '';
+
+                    let total = applications.length;
+                    let pending = 0;
+                    let approved = 0;
+                    let rejected = 0;
+
+                    if (applications.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 25px; color: #64748b;">No applications submitted yet.</td></tr>';
+                        updateCounters(0, 0, 0, 0);
+                        return;
+                    }
+
+                    // Loop through each application
+                    applications.forEach(app => {
+                        // Count statuses for statistics
+                        const st = app.status.toLowerCase();
+                        if (st === 'approved') approved++;
+                        else if (st === 'rejected') rejected++;
+                        else pending++;
+
+                        // Determine badge style
+                        let badgeClass = 'badge-pending';
+                        if (st === 'approved') badgeClass = 'badge-approved';
+                        if (st === 'rejected') badgeClass = 'badge-rejected';
+
+                        // Create table row element
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>${app.appId}</strong></td>
+                            <td>${app.name}</td>
+                            <td style="font-size: 13px;">${app.email}</td>
+                            <td>${app.ssc.toFixed(1)}%</td>
+                            <td>${app.hsc.toFixed(1)}%</td>
+                            <td><strong>${app.cet.toFixed(1)}</strong></td>
+                            <td style="font-weight: 500; color: #0d3b66;">${app.course}</td>
+                            <td>${app.category}</td>
+                            <td><span class="badge ${badgeClass}">${app.status}</span></td>
+                            <td style="font-size: 12px; color: #64748b; max-width: 150px;">${app.remarks || '-'}</td>
+                            <td style="white-space: nowrap;">
+                                <button onclick="updateStatus('${app.appId}', 'Approved')" class="btn btn-success btn-sm" style="margin-right: 5px;">
+                                    &#10004; Approve
+                                </button>
+                                <button onclick="updateStatus('${app.appId}', 'Rejected')" class="btn btn-danger btn-sm">
+                                    &#10008; Reject
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Update counter cards
+                    updateCounters(total, pending, approved, rejected);
+                })
+                .catch(err => {
+                    console.error('Error fetching applications:', err);
+                });
+        }
+
+        // Helper: Updates stats cards
+        function updateCounters(total, pending, approved, rejected) {
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('statApproved').textContent = approved;
+            document.getElementById('statRejected').textContent = rejected;
+        }
+
+        // Function: Updates application status in Java backend /api/admin/action
+        function updateStatus(appId, newStatus) {
+            // Prompt for optional remarks
+            const defaultRemark = newStatus === 'Approved' ? 'Merit verified. Seat allocated.' : 'Did not satisfy branch cutoff score.';
+            const remarks = prompt(`Enter remarks for marking ${appId} as "${newStatus}":`, defaultRemark);
+
+            // If admin cancelled prompt, abort
+            if (remarks === null) return;
+
+            const formData = new URLSearchParams();
+            formData.append('appId', appId);
+            formData.append('action', newStatus);
+            formData.append('remarks', remarks);
+
+            // Send POST request to backend
+            fetch('/api/admin/action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    actionAlert.textContent = data.message;
+                    actionAlert.style.display = 'block';
+                    // Re-fetch applications list to reflect changes in real time
+                    loadApplications();
+                    // Hide alert after 4 seconds
+                    setTimeout(() => { actionAlert.style.display = 'none'; }, 4000);
+                }
+            })
+            .catch(err => {
+                alert('Error updating status on server.');
+            });
+        }
+    </script>
+
+</body>
+</html>
+

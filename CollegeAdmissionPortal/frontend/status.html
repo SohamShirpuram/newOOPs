@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!-- Declare standard HTML5 document type -->
+<html lang="en">
+<head>
+    <!-- Character set definition -->
+    <meta charset="UTF-8">
+    <!-- Viewport responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title -->
+    <title>Application Status - CET Admission Portal</title>
+    <!-- CSS link -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================================= -->
+    <!-- HEADER SECTION                                                -->
+    <!-- ============================================================= -->
+    <header>
+        <div class="header-container">
+            <div class="portal-title">
+                <h1>State CET Cell - Admission Portal</h1>
+                <p>Candidate Application & Scrutiny Status Tracker</p>
+            </div>
+            <!-- Navigation links -->
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="application.html">Apply</a>
+                <a href="status.html" class="btn-nav-active">Check Status</a>
+                <a href="login.html">Login</a>
+                <a href="admin-login.html">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+        Application scrutiny is conducted by the Admission Committee. Check this page for status updates.
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- MAIN CONTENT SECTION                                          -->
+    <!-- ============================================================= -->
+    <main>
+
+        <!-- Search / Lookup Card -->
+        <section class="card" style="max-width: 700px; margin: 0 auto 25px auto;">
+            <div class="card-header">
+                <h2>Track Application Status</h2>
+                <p>Enter your registered email address to view your submitted application details.</p>
+            </div>
+
+            <!-- Lookup Form -->
+            <form id="searchForm" style="display: flex; gap: 10px;">
+                <!-- Email Search Input -->
+                <input type="email" id="searchEmail" class="form-control" placeholder="Enter your registered email (e.g. rahul@gmail.com)" required>
+                <!-- Search Button -->
+                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Search Status</button>
+            </form>
+        </section>
+
+        <!-- Status Result Card (Hidden until data is fetched) -->
+        <section id="statusCard" class="card" style="display: none; max-width: 700px; margin: 0 auto;">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <h2>Admission Application Details</h2>
+                    <p>Reference ID: <strong id="appIdDisplay" style="color: #0d3b66;"></strong></p>
+                </div>
+                <!-- Status Badge Container -->
+                <div id="statusBadgeContainer"></div>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="detail-grid">
+                <!-- Candidate Name -->
+                <div class="detail-item">
+                    <div class="detail-label">Candidate Name</div>
+                    <div id="dispName" class="detail-value">-</div>
+                </div>
+
+                <!-- Email -->
+                <div class="detail-item">
+                    <div class="detail-label">Registered Email</div>
+                    <div id="dispEmail" class="detail-value" style="font-size: 14px;">-</div>
+                </div>
+
+                <!-- SSC Marks -->
+                <div class="detail-item">
+                    <div class="detail-label">10th SSC Marks</div>
+                    <div id="dispSsc" class="detail-value">-</div>
+                </div>
+
+                <!-- HSC Marks -->
+                <div class="detail-item">
+                    <div class="detail-label">12th HSC Marks</div>
+                    <div id="dispHsc" class="detail-value">-</div>
+                </div>
+
+                <!-- CET Score -->
+                <div class="detail-item">
+                    <div class="detail-label">MHT-CET Percentile</div>
+                    <div id="dispCet" class="detail-value">-</div>
+                </div>
+
+                <!-- Category -->
+                <div class="detail-item">
+                    <div class="detail-label">Admission Category</div>
+                    <div id="dispCategory" class="detail-value">-</div>
+                </div>
+
+                <!-- Selected Branch -->
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <div class="detail-label">Selected Course / Branch</div>
+                    <div id="dispCourse" class="detail-value" style="color: #0d3b66; font-size: 18px;">-</div>
+                </div>
+
+                <!-- Committee Remarks -->
+                <div class="detail-item" style="grid-column: 1 / -1; background-color: #ffffff; border-left: 4px solid #0d3b66;">
+                    <div class="detail-label">Admission Committee Remarks</div>
+                    <div id="dispRemarks" style="font-size: 15px; color: #334155; margin-top: 4px;">-</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Not Found Message Card -->
+        <section id="notFoundCard" class="card" style="display: none; max-width: 700px; margin: 0 auto; text-align: center;">
+            <h3 style="color: #e63946; margin-bottom: 10px;">No Application Found</h3>
+            <p style="color: #64748b; margin-bottom: 20px;">
+                We could not find an admission application submitted with this email.
+            </p>
+            <a href="application.html" class="btn btn-primary">Fill Application Form Now</a>
+        </section>
+
+    </main>
+
+    <!-- ============================================================= -->
+    <!-- FOOTER SECTION                                                -->
+    <!-- ============================================================= -->
+    <footer>
+        <p>&copy; 2026 State Common Entrance Test Cell • College Admission Portal</p>
+    </footer>
+
+    <!-- ============================================================= -->
+    <!-- JAVASCRIPT: Queries Java Backend for Application Status        -->
+    <!-- ============================================================= -->
+    <script>
+        // Check if email was provided via URL parameter (?email=...) or sessionStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramEmail = urlParams.get('email') || sessionStorage.getItem('studentEmail');
+
+        // References to UI containers
+        const searchInput = document.getElementById('searchEmail');
+        const statusCard = document.getElementById('statusCard');
+        const notFoundCard = document.getElementById('notFoundCard');
+        const badgeContainer = document.getElementById('statusBadgeContainer');
+
+        // If email is available on page load, automatically query status
+        if (paramEmail) {
+            searchInput.value = paramEmail;
+            fetchStatus(paramEmail);
+        }
+
+        // Form submission event
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = searchInput.value.trim();
+            if (email) {
+                fetchStatus(email);
+            }
+        });
+
+        // Function: Fetches application data from Java backend /api/status endpoint
+        function fetchStatus(email) {
+            // Hide previous results while loading
+            statusCard.style.display = 'none';
+            notFoundCard.style.display = 'none';
+
+            // Send GET request to Java backend
+            fetch('/api/status?email=' + encodeURIComponent(email))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.found) {
+                        // Populate details into the UI
+                        document.getElementById('appIdDisplay').textContent = data.appId;
+                        document.getElementById('dispName').textContent = data.name;
+                        document.getElementById('dispEmail').textContent = data.email;
+                        document.getElementById('dispSsc').textContent = data.ssc.toFixed(2) + '%';
+                        document.getElementById('dispHsc').textContent = data.hsc.toFixed(2) + '%';
+                        document.getElementById('dispCet').textContent = data.cet.toFixed(2) + ' Percentile';
+                        document.getElementById('dispCourse').textContent = data.course;
+                        document.getElementById('dispCategory').textContent = data.category;
+                        document.getElementById('dispRemarks').textContent = data.remarks || 'No remarks provided.';
+
+                        // Render appropriate status badge based on status value
+                        let badgeHtml = '';
+                        if (data.status.toLowerCase() === 'approved') {
+                            badgeHtml = '<span class="badge badge-approved">&#10004; APPROVED / SEAT ALLOTTED</span>';
+                        } else if (data.status.toLowerCase() === 'rejected') {
+                            badgeHtml = '<span class="badge badge-rejected">&#10008; APPLICATION REJECTED</span>';
+                        } else {
+                            badgeHtml = '<span class="badge badge-pending">&#9203; PENDING VERIFICATION</span>';
+                        }
+                        badgeContainer.innerHTML = badgeHtml;
+
+                        // Show the status card
+                        statusCard.style.display = 'block';
+                    } else {
+                        // Show not found notice
+                        notFoundCard.style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    alert('Error connecting to backend server.');
+                });
+        }
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!-- Declare standard HTML5 document type -->
+<html lang="en">
+<head>
+    <!-- Character set definition -->
+    <meta charset="UTF-8">
+    <!-- Mobile responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Page title -->
+    <title>Admission Application Form - CET Admission Portal</title>
+    <!-- Link external CSS stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ============================================================= -->
+    <!-- HEADER SECTION                                                -->
+    <!-- ============================================================= -->
+    <header>
+        <div class="header-container">
+            <div class="portal-title">
+                <h1>State CET Cell - Admission Portal</h1>
+                <p>Centralized Admission Application Form (CAP Round 1)</p>
+            </div>
+            <!-- Navigation links -->
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="application.html" class="btn-nav-active">Application Form</a>
+                <a href="status.html">My Status</a>
+                <a href="login.html" onclick="sessionStorage.clear();">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+        Carefully enter your examination marks and branch preference. Form can be submitted only once per candidate.
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- MAIN CONTENT SECTION (APPLICATION FORM)                      -->
+    <!-- ============================================================= -->
+    <main>
+        <div class="card">
+
+            <!-- Card Header -->
+            <div class="card-header">
+                <h2>Engineering Degree Admission Form</h2>
+                <p>Fill in your academic marks and preferred branch of study.</p>
+            </div>
+
+            <!-- Success Alert Box -->
+            <div id="successAlert" class="alert alert-success"></div>
+
+            <!-- Error Alert Box -->
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <!-- Application Form -->
+            <form id="admissionForm">
+
+                <!-- Row 1: Candidate Personal Info -->
+                <div class="form-row">
+                    <!-- Candidate Name -->
+                    <div class="form-col form-group">
+                        <label for="name">Candidate Full Name <span class="required-star">*</span></label>
+                        <input type="text" id="name" name="name" class="form-control" placeholder="Candidate Name" required>
+                    </div>
+
+                    <!-- Candidate Email -->
+                    <div class="form-col form-group">
+                        <label for="email">Registered Email Address <span class="required-star">*</span></label>
+                        <input type="email" id="email" name="email" class="form-control" placeholder="student@example.com" required>
+                    </div>
+                </div>
+
+                <!-- Row 2: Academic Marks -->
+                <div class="form-row">
+                    <!-- 10th Standard (SSC) Percentage -->
+                    <div class="form-col form-group">
+                        <label for="sscMarks">10th Standard (SSC) % <span class="required-star">*</span></label>
+                        <input type="number" id="sscMarks" name="sscMarks" class="form-control" step="0.01" min="35" max="100" placeholder="e.g. 88.50" required>
+                        <div class="form-hint">Minimum 35% required.</div>
+                    </div>
+
+                    <!-- 12th Standard (HSC) Percentage -->
+                    <div class="form-col form-group">
+                        <label for="hscMarks">12th Standard (HSC) % <span class="required-star">*</span></label>
+                        <input type="number" id="hscMarks" name="hscMarks" class="form-control" step="0.01" min="35" max="100" placeholder="e.g. 85.20" required>
+                        <div class="form-hint">PCM / PCB aggregate marks percentage.</div>
+                    </div>
+
+                    <!-- CET Exam Score / Percentile -->
+                    <div class="form-col form-group">
+                        <label for="cetScore">MHT-CET Percentile / Score <span class="required-star">*</span></label>
+                        <input type="number" id="cetScore" name="cetScore" class="form-control" step="0.01" min="0" max="100" placeholder="e.g. 94.60" required>
+                        <div class="form-hint">State CET entrance exam percentile.</div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Course Preference & Reservation Category -->
+                <div class="form-row">
+                    <!-- Preferred Engineering Branch -->
+                    <div class="form-col form-group">
+                        <label for="course">Preferred Engineering Branch <span class="required-star">*</span></label>
+                        <select id="course" name="course" class="form-control" required>
+                            <option value="">-- Select Course / Branch --</option>
+                            <option value="Computer Engineering">Computer Engineering</option>
+                            <option value="Information Technology">Information Technology</option>
+                            <option value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</option>
+                            <option value="Electronics & Telecommunication">Electronics & Telecommunication</option>
+                            <option value="Mechanical Engineering">Mechanical Engineering</option>
+                            <option value="Civil Engineering">Civil Engineering</option>
+                        </select>
+                    </div>
+
+                    <!-- Admission Category -->
+                    <div class="form-col form-group">
+                        <label for="category">Admission Category <span class="required-star">*</span></label>
+                        <select id="category" name="category" class="form-control" required>
+                            <option value="General">General / Open</option>
+                            <option value="OBC">Other Backward Class (OBC)</option>
+                            <option value="SC">Scheduled Caste (SC)</option>
+                            <option value="ST">Scheduled Tribe (ST)</option>
+                            <option value="EWS">Economically Weaker Section (EWS)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Declaration Checkbox -->
+                <div class="form-group" style="margin-top: 10px;">
+                    <label style="font-weight: normal; display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" required>
+                        I declare that all the information provided above is authentic and verified with my original marksheets.
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" style="padding: 12px 30px; font-size: 16px;">
+                    Submit Application Form
+                </button>
+
+            </form>
+
+        </div>
+    </main>
+
+    <!-- ============================================================= -->
+    <!-- FOOTER SECTION                                                -->
+    <!-- ============================================================= -->
+    <footer>
+        <p>&copy; 2026 State Common Entrance Test Cell • College Admission Portal</p>
+    </footer>
+
+    <!-- ============================================================= -->
+    <!-- JAVASCRIPT: Connects Form to Core Java Backend                 -->
+    <!-- ============================================================= -->
+    <script>
+        // Check if student is logged in from login.html
+        const savedEmail = sessionStorage.getItem('studentEmail');
+        const savedName = sessionStorage.getItem('studentName');
+
+        // Pre-fill email and name if available in session
+        if (savedEmail) {
+            document.getElementById('email').value = savedEmail;
+        }
+        if (savedName) {
+            document.getElementById('name').value = savedName;
+        }
+
+        // Form and alert element references
+        const admissionForm = document.getElementById('admissionForm');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+
+        // Form submission handler
+        admissionForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Clear previous alerts
+            successAlert.style.display = 'none';
+            errorAlert.style.display = 'none';
+
+            // Extract input values
+            const email = document.getElementById('email').value;
+            const name = document.getElementById('name').value;
+            const sscMarks = document.getElementById('sscMarks').value;
+            const hscMarks = document.getElementById('hscMarks').value;
+            const cetScore = document.getElementById('cetScore').value;
+            const course = document.getElementById('course').value;
+            const category = document.getElementById('category').value;
+
+            // Prepare POST body parameters
+            const formData = new URLSearchParams();
+            formData.append('email', email);
+            formData.append('name', name);
+            formData.append('sscMarks', sscMarks);
+            formData.append('hscMarks', hscMarks);
+            formData.append('cetScore', cetScore);
+            formData.append('course', course);
+            formData.append('category', category);
+
+            // Send POST request to Java backend /api/apply
+            fetch('/api/apply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    successAlert.textContent = data.message + " (Application ID: " + data.appId + "). Redirecting to Status page...";
+                    successAlert.style.display = 'block';
+
+                    // Save email in session to view status
+                    sessionStorage.setItem('studentEmail', email);
+
+                    // Redirect to status page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'status.html?email=' + encodeURIComponent(email);
+                    }, 2000);
+                } else {
+                    errorAlert.textContent = data.message;
+                    errorAlert.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                errorAlert.textContent = 'Failed to submit form. Please verify backend server is running.';
+                errorAlert.style.display = 'block';
+            });
+        });
+    </script>
+
+</body>
+</html>
+

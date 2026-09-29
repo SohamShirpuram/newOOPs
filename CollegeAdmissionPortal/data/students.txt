@@ -1,0 +1,4 @@
+# Format: StudentID|FullName|Email|Password|PhoneNumber
+STU101|Rahul Sharma|rahul@gmail.com|rahul123|9876543211
+STU102|Sneha Patil|sneha@gmail.com|sneha123|9822334455
+STU103|Soham Shirpuram|sohamshirpuram@gmail.com|Soham@123|8530273991

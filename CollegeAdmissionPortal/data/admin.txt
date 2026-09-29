@@ -1,0 +1,3 @@
+# Format: AdminID|FullName|Email|Password|PhoneNumber
+ADM001|Admission Officer|admin@cet.gov.in|admin123|9876543210
+
